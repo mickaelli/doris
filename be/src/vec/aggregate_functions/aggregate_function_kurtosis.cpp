@@ -15,15 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "vec/aggregate_functions/aggregate_function.h"
+#include "vec/aggregate_functions/aggregate_function_skew_kurt.h"
 #include "vec/aggregate_functions/aggregate_function_simple_factory.h"
-#include "vec/aggregate_functions/aggregate_function_statistic.h"
 #include "vec/aggregate_functions/factory_helpers.h"
-#include "vec/aggregate_functions/helpers.h"
-#include "vec/data_types/data_type.h"
 
 namespace doris::vectorized {
 #include "common/compile_check_begin.h"
+
+template <typename T>
+using KurtPopDataTemplate = KurtPopData<T, KurtosisPopName>;
 
 AggregateFunctionPtr create_aggregate_function_kurt(const std::string& name,
                                                     const DataTypes& argument_types,
@@ -36,18 +36,7 @@ AggregateFunctionPtr create_aggregate_function_kurt(const std::string& name,
                                "Aggregate function {} requires result_is_nullable", name);
     }
 
-    const bool nullable_input = argument_types[0]->is_nullable();
-    using StatFunctionTemplate = StatFuncOneArg<TYPE_DOUBLE, 4>;
-
-    if (nullable_input) {
-        return creator_without_type::create_ignore_nullable<
-                AggregateFunctionVarianceSimple<StatFunctionTemplate, true>>(
-                argument_types, result_is_nullable, attr, STATISTICS_FUNCTION_KIND::KURT_POP);
-    } else {
-        return creator_without_type::create_ignore_nullable<
-                AggregateFunctionVarianceSimple<StatFunctionTemplate, false>>(
-                argument_types, result_is_nullable, attr, STATISTICS_FUNCTION_KIND::KURT_POP);
-    }
+    return create_with_numeric_type<AggregateFunctionSkewKurt, KurtPopDataTemplate>(argument_types[0], argument_types);
 }
 
 void register_aggregate_function_kurtosis(AggregateFunctionSimpleFactory& factory) {
