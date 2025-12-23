@@ -39,7 +39,7 @@ AggregateFunctionPtr create_aggregate_function_kurt(const std::string& name,
     return create_with_numeric_type<AggregateFunctionSkewKurt, KurtPopDataTemplate>(argument_types[0], argument_types);
 }
 
-void register_aggregate_function_kurtosis(AggregateFunctionSimpleFactory& factory) {
+void register_aggregate_function_kurtosis_pop(AggregateFunctionSimpleFactory& factory) {
     factory.register_function_both("kurt", create_aggregate_function_kurt);
     factory.register_alias("kurt", "kurt_pop");
     factory.register_alias("kurt", "kurtosis");

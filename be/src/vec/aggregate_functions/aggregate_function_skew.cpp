@@ -39,7 +39,7 @@ AggregateFunctionPtr create_aggregate_function_skew(const std::string& name,
     return create_with_numeric_type<AggregateFunctionSkewKurt, SkewPopDataTemplate>(argument_types[0], argument_types);
 }
 
-void register_aggregate_function_skewness(AggregateFunctionSimpleFactory& factory) {
+void register_aggregate_function_skewness_pop(AggregateFunctionSimpleFactory& factory) {
     factory.register_function_both("skew", create_aggregate_function_skew);
     factory.register_alias("skew", "skew_pop");
     factory.register_alias("skew", "skewness");

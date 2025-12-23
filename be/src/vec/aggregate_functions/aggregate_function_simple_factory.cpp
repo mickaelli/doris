@@ -48,6 +48,8 @@ void register_aggregate_function_window_lead_lag_first_last(
         AggregateFunctionSimpleFactory& factory);
 void register_aggregate_function_stddev_variance_pop(AggregateFunctionSimpleFactory& factory);
 void register_aggregate_function_stddev_variance_samp(AggregateFunctionSimpleFactory& factory);
+void register_aggregate_function_kurtosis_pop(AggregateFunctionSimpleFactory& factory);
+void register_aggregate_function_skewness_pop(AggregateFunctionSimpleFactory& factory);
 void register_aggregate_function_topn(AggregateFunctionSimpleFactory& factory);
 void register_aggregate_function_approx_count_distinct(AggregateFunctionSimpleFactory& factory);
 void register_aggregate_function_group_array_set_op(AggregateFunctionSimpleFactory& factory);
@@ -131,6 +133,8 @@ AggregateFunctionSimpleFactory& AggregateFunctionSimpleFactory::instance() {
         register_aggregate_function_covar_samp(instance);
         register_aggregate_function_skewness(instance);
         register_aggregate_function_kurtosis(instance);
+        register_aggregate_function_skewness_pop(instance);
+        register_aggregate_function_kurtosis_pop(instance);
         register_aggregate_function_percentile_reservoir(instance);
         register_aggregate_function_ai_agg(instance);
         register_aggregate_function_bool_union(instance);

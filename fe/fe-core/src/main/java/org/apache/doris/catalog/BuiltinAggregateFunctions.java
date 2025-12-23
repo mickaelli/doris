@@ -84,6 +84,8 @@ import org.apache.doris.nereids.trees.expressions.functions.agg.SequenceMatch;
 import org.apache.doris.nereids.trees.expressions.functions.agg.Skew;
 import org.apache.doris.nereids.trees.expressions.functions.agg.Stddev;
 import org.apache.doris.nereids.trees.expressions.functions.agg.StddevSamp;
+import org.apache.doris.nereids.trees.expressions.functions.agg.SkewPop;
+import org.apache.doris.nereids.trees.expressions.functions.agg.KurtPop;
 import org.apache.doris.nereids.trees.expressions.functions.agg.Sum;
 import org.apache.doris.nereids.trees.expressions.functions.agg.Sum0;
 import org.apache.doris.nereids.trees.expressions.functions.agg.TopN;
@@ -178,6 +180,8 @@ public class BuiltinAggregateFunctions implements FunctionHelper {
                 agg(SequenceCount.class, "sequence_count"),
                 agg(SequenceMatch.class, "sequence_match"),
                 agg(Skew.class, "skew", "skew_pop", "skewness"),
+                agg(SkewPop.class, "skew_pop", "skew"),       
+                agg(KurtPop.class, "kurtosis_pop", "kurt")
                 agg(Stddev.class, "stddev_pop", "stddev", "std"),
                 agg(StddevSamp.class, "stddev_samp"),
                 agg(Sum.class, "sum"),

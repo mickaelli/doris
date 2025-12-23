@@ -19,7 +19,7 @@
 
 #include <cmath>
 #include "vec/aggregate_functions/aggregate_function.h"
-#include "vec/aggregate_functions/aggregate_function_helpers.h"
+#include "vec/aggregate_functions/factory_helpers.h"
 #include "vec/columns/column.h"
 #include "vec/columns/column_nullable.h"
 #include "vec/common/assert_cast.h"
@@ -67,7 +67,7 @@ struct BaseData {
     }
 
     double get_skew_pop_result() const {
-        if (count == 0 || m2 <= 0) return 0.0;
+        if (count == 0 || m2 <= 0) return NULL;
         double res = (m3 * std::sqrt(double(count))) / std::pow(m2, 1.5);
         return inf_to_nan(res);
     }

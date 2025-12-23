@@ -137,6 +137,14 @@ public abstract class ExpressionVisitor<R, C>
     public R visitAggregateFunction(AggregateFunction aggregateFunction, C context) {
         return visitBoundFunction(aggregateFunction, context);
     }
+    
+    public R visitSkewPop(SkewPop skewPop, C context) {
+        return visitAggregateFunction(skewPop, context);
+    }
+
+    public R visitKurtosisPop(KurtosisPop kurtosisPop, C context) {
+        return visitAggregateFunction(kurtosisPop, context);
+    }
 
     public R visitLambda(Lambda lambda, C context) {
         return visit(lambda, context);
