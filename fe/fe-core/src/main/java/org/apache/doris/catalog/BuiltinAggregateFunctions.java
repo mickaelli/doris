@@ -50,6 +50,7 @@ import org.apache.doris.nereids.trees.expressions.functions.agg.HllUnion;
 import org.apache.doris.nereids.trees.expressions.functions.agg.HllUnionAgg;
 import org.apache.doris.nereids.trees.expressions.functions.agg.IntersectCount;
 import org.apache.doris.nereids.trees.expressions.functions.agg.Kurt;
+import org.apache.doris.nereids.trees.expressions.functions.agg.KurtPop;
 import org.apache.doris.nereids.trees.expressions.functions.agg.LinearHistogram;
 import org.apache.doris.nereids.trees.expressions.functions.agg.MapAgg;
 import org.apache.doris.nereids.trees.expressions.functions.agg.MapAggV2;
@@ -82,10 +83,9 @@ import org.apache.doris.nereids.trees.expressions.functions.agg.Sem;
 import org.apache.doris.nereids.trees.expressions.functions.agg.SequenceCount;
 import org.apache.doris.nereids.trees.expressions.functions.agg.SequenceMatch;
 import org.apache.doris.nereids.trees.expressions.functions.agg.Skew;
+import org.apache.doris.nereids.trees.expressions.functions.agg.SkewPop;
 import org.apache.doris.nereids.trees.expressions.functions.agg.Stddev;
 import org.apache.doris.nereids.trees.expressions.functions.agg.StddevSamp;
-import org.apache.doris.nereids.trees.expressions.functions.agg.SkewPop;
-import org.apache.doris.nereids.trees.expressions.functions.agg.KurtPop;
 import org.apache.doris.nereids.trees.expressions.functions.agg.Sum;
 import org.apache.doris.nereids.trees.expressions.functions.agg.Sum0;
 import org.apache.doris.nereids.trees.expressions.functions.agg.TopN;
@@ -148,7 +148,8 @@ public class BuiltinAggregateFunctions implements FunctionHelper {
                 agg(HllUnion.class, "hll_raw_agg", "hll_union"),
                 agg(HllUnionAgg.class, "hll_union_agg"),
                 agg(IntersectCount.class, "intersect_count"),
-                agg(Kurt.class, "kurt", "kurt_pop", "kurtosis"),
+                agg(Kurt.class, "kurt", "kurtosis"),
+                agg(KurtPop.class, "kurtosis_pop"),
                 agg(LinearHistogram.class, "linear_histogram"),
                 agg(MapAgg.class, "map_agg_v1"),
                 agg(MapAggV2.class, "map_agg_v2", "map_agg"),
@@ -179,9 +180,8 @@ public class BuiltinAggregateFunctions implements FunctionHelper {
                 agg(Sem.class, "sem"),
                 agg(SequenceCount.class, "sequence_count"),
                 agg(SequenceMatch.class, "sequence_match"),
-                agg(Skew.class, "skew", "skew_pop", "skewness"),
-                agg(SkewPop.class, "skew_pop", "skew"),       
-                agg(KurtPop.class, "kurtosis_pop", "kurt")
+                agg(Skew.class, "skew", "skewness"),
+                agg(SkewPop.class, "skew_pop"),
                 agg(Stddev.class, "stddev_pop", "stddev", "std"),
                 agg(StddevSamp.class, "stddev_samp"),
                 agg(Sum.class, "sum"),

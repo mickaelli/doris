@@ -88,6 +88,8 @@ import org.apache.doris.nereids.trees.expressions.WindowExpression;
 import org.apache.doris.nereids.trees.expressions.WindowFrame;
 import org.apache.doris.nereids.trees.expressions.functions.BoundFunction;
 import org.apache.doris.nereids.trees.expressions.functions.agg.AggregateFunction;
+import org.apache.doris.nereids.trees.expressions.functions.agg.KurtPop;
+import org.apache.doris.nereids.trees.expressions.functions.agg.SkewPop;
 import org.apache.doris.nereids.trees.expressions.functions.generator.TableGeneratingFunction;
 import org.apache.doris.nereids.trees.expressions.functions.scalar.GroupingScalarFunction;
 import org.apache.doris.nereids.trees.expressions.functions.scalar.Lambda;
@@ -137,13 +139,13 @@ public abstract class ExpressionVisitor<R, C>
     public R visitAggregateFunction(AggregateFunction aggregateFunction, C context) {
         return visitBoundFunction(aggregateFunction, context);
     }
-    
+
     public R visitSkewPop(SkewPop skewPop, C context) {
         return visitAggregateFunction(skewPop, context);
     }
 
-    public R visitKurtosisPop(KurtosisPop kurtosisPop, C context) {
-        return visitAggregateFunction(kurtosisPop, context);
+    public R visitKurtPop(KurtPop kurtPop, C context) {
+        return visitAggregateFunction(kurtPop, context);
     }
 
     public R visitLambda(Lambda lambda, C context) {

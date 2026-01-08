@@ -15,17 +15,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "vec/aggregate_functions/aggregate_function.h"
+#include "vec/aggregate_functions/aggregate_function_skew_kurt_pop.h"
 #include "vec/aggregate_functions/aggregate_function_simple_factory.h"
-#include "vec/aggregate_functions/aggregate_function_statistic.h"
 #include "vec/aggregate_functions/factory_helpers.h"
 #include "vec/aggregate_functions/helpers.h"
-#include "vec/data_types/data_type.h"
 
 namespace doris::vectorized {
 #include "common/compile_check_begin.h"
 
-AggregateFunctionPtr create_aggregate_function_skew(const std::string& name,
+template <PrimitiveType T>
+using KurtPopDataPT = KurtPopData<T, KurtosisPopName>;
+
+AggregateFunctionPtr create_aggregate_function_kurt_pop(const std::string& name,
                                                     const DataTypes& argument_types,
                                                     const DataTypePtr& result_type,
                                                     const bool result_is_nullable,
@@ -36,23 +37,15 @@ AggregateFunctionPtr create_aggregate_function_skew(const std::string& name,
                                "Aggregate function {} requires result_is_nullable", name);
     }
 
-    const bool nullable_input = argument_types[0]->is_nullable();
-    using StatFunctionTemplate = StatFuncOneArg<TYPE_DOUBLE, 3>;
-
-    if (nullable_input) {
-        return creator_without_type::create_ignore_nullable<
-                AggregateFunctionVarianceSimple<StatFunctionTemplate, true>>(
-                argument_types, result_is_nullable, attr, STATISTICS_FUNCTION_KIND::SKEW_POP);
-    } else {
-        return creator_without_type::create_ignore_nullable<
-                AggregateFunctionVarianceSimple<StatFunctionTemplate, false>>(
-                argument_types, result_is_nullable, attr, STATISTICS_FUNCTION_KIND::SKEW_POP);
-    }
+    return creator_with_type_list<TYPE_TINYINT, TYPE_SMALLINT, TYPE_INT, TYPE_BIGINT, TYPE_LARGEINT,
+                                  TYPE_FLOAT, TYPE_DOUBLE>::template create<
+            AggregateFunctionSkewKurt, KurtPopDataPT>(argument_types, result_is_nullable, attr);
 }
 
-void register_aggregate_function_skewness(AggregateFunctionSimpleFactory& factory) {
-    factory.register_function_both("skew", create_aggregate_function_skew);
-    factory.register_alias("skew", "skewness");
+void register_aggregate_function_kurtosis_pop(AggregateFunctionSimpleFactory& factory) {
+    factory.register_function_both("kurt_pop", create_aggregate_function_kurt_pop);
+    factory.register_alias("kurt_pop", "kurtosis_pop");
 }
 
+#include "common/compile_check_end.h"
 } // namespace doris::vectorized

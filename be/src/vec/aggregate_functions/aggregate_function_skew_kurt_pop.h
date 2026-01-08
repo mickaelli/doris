@@ -18,8 +18,13 @@
 #pragma once
 
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <limits>
+#include <memory>
+#include <type_traits>
+
 #include "vec/aggregate_functions/aggregate_function.h"
-#include "vec/aggregate_functions/factory_helpers.h"
 #include "vec/columns/column.h"
 #include "vec/columns/column_nullable.h"
 #include "vec/common/assert_cast.h"
@@ -29,6 +34,13 @@
 
 namespace doris::vectorized {
 #include "common/compile_check_begin.h"
+class Arena;
+class BufferReadable;
+class BufferWritable;
+template <PrimitiveType T>
+class ColumnDecimal;
+template <PrimitiveType T>
+class ColumnVector;
 
 template <PrimitiveType T>
 struct BaseData {
@@ -67,14 +79,14 @@ struct BaseData {
     }
 
     double get_skew_pop_result() const {
-        if (count == 0 || m2 <= 0) return NULL;
+        if (count == 0 || m2 <= 0) return 0.0;
         double res = (m3 * std::sqrt(double(count))) / std::pow(m2, 1.5);
         return inf_to_nan(res);
     }
 
     double get_kurtosis_pop_result() const {
         if (count == 0 || m2 <= 0) return 0.0;
-        double res = (double)count * m4 / (m2 * m2);
+        double res = (double)count * m4 / (m2 * m2) - 3.0;
         return inf_to_nan(res);
     }
 
@@ -95,10 +107,10 @@ struct BaseData {
         m4 = this->m4 + rhs.m4 + delta4 * term1 * (n1 * n1 - n1 * n2 + n2 * n2) * inv_n2;
         m4 += 6.0 * delta2 * (n1 * n1 * rhs.m2 + n2 * n2 * this->m2) * inv_n2 +
               4.0 * delta * (n1 * rhs.m3 - n2 * this->m3) * inv_n;
-        
+
         m3 = this->m3 + rhs.m3 + delta3 * term1 * (n1 - n2) * inv_n;
         m3 += 3.0 * delta * (n1 * rhs.m2 - n2 * this->m2) * inv_n;
-        
+
         m2 = rhs.m2 + m2 + (delta * delta) * term1;
         this->mean += delta * n2 * inv_n;
         count = int64_t(n);
@@ -107,17 +119,18 @@ struct BaseData {
     void add(const IColumn* column, size_t row_num) {
         const auto& sources = assert_cast<const typename PrimitiveTypeTraits<T>::ColumnType&,
                                           TypeCheckOnRelease::DISABLE>(*column);
-        double x = (double)sources.get_data()[row_num];
+        double val = (double)sources.get_data()[row_num];
 
-        double delta = x - mean;
-        double delta_n = delta / double(1 + count);
+        long long n1 = count;
+        count++;
+        double delta = val - mean;
+        double delta_n = delta / double(count);
         double delta_n2 = delta_n * delta_n;
-        double term1 = delta * delta_n * count;
-        
-        ++count;
+        double term1 = delta * delta_n * double(n1);
+
         mean += delta_n;
-        m4 += term1 * delta_n2 * (count * count - 3 * count + 3) + 6 * delta_n2 * m2 - 4 * delta_n * m3;
-        m3 += term1 * delta_n * (count - 2) - 3 * delta_n * m2;
+        m4 += term1 * delta_n2 * (double(count) * double(count) - 3 * double(count) + 3) + 6 * delta_n2 * m2 - 4 * delta_n * m3;
+        m3 += term1 * delta_n * (double(count) - 2) - 3 * delta_n * m2;
         m2 += term1;
     }
 
@@ -128,25 +141,38 @@ struct BaseData {
     int64_t count {};
 };
 
-struct SkewPopName { static const char* name() { return "skew_pop"; } };
-struct KurtosisPopName { static const char* name() { return "kurtosis_pop"; } };
+struct SkewPopName {
+    static const char* name() { return "skew_pop"; }
+};
+
+struct KurtosisPopName {
+    static const char* name() { return "kurtosis_pop"; }
+};
 
 template <PrimitiveType T, typename Name>
 struct SkewPopData : BaseData<T>, Name {
-    using ColVecResult = ColumnFloat64;
+    using ColVecResult = std::conditional_t<is_decimal(T), ColumnDecimal128V2, ColumnFloat64>;
     void insert_result_into(IColumn& to) const {
         auto& col = assert_cast<ColVecResult&>(to);
-        col.get_data().push_back(this->get_skew_pop_result());
+        if constexpr (is_decimal(T)) {
+            col.get_data().push_back(this->get_skew_pop_result().value());
+        } else {
+            col.get_data().push_back(this->get_skew_pop_result());
+        }
     }
     static DataTypePtr get_return_type() { return std::make_shared<DataTypeFloat64>(); }
 };
 
 template <PrimitiveType T, typename Name>
 struct KurtPopData : BaseData<T>, Name {
-    using ColVecResult = ColumnFloat64;
+    using ColVecResult = std::conditional_t<is_decimal(T), ColumnDecimal128V2, ColumnFloat64>;
     void insert_result_into(IColumn& to) const {
         auto& col = assert_cast<ColVecResult&>(to);
-        col.get_data().push_back(this->get_kurtosis_pop_result());
+        if constexpr (is_decimal(T)) {
+            col.get_data().push_back(this->get_kurtosis_pop_result().value());
+        } else {
+            col.get_data().push_back(this->get_kurtosis_pop_result());
+        }
     }
     static DataTypePtr get_return_type() { return std::make_shared<DataTypeFloat64>(); }
 };

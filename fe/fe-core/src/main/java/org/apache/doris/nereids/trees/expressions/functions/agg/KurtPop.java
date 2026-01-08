@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * AggregateFunction 'kurtosis_pop'.
  */
-public class KurtosisPop extends NullableAggregateFunction
+public class KurtPop extends NullableAggregateFunction
         implements UnaryExpression, ExplicitlyCastableSignature {
 
     public static final List<FunctionSignature> SIGNATURES = ImmutableList.of(
@@ -41,23 +41,23 @@ public class KurtosisPop extends NullableAggregateFunction
     /**
      * constructor with 1 argument.
      */
-    public KurtosisPop(Expression arg) {
+    public KurtPop(Expression arg) {
         this(false, arg);
     }
 
     /**
      * constructor with 1 argument.
      */
-    public KurtosisPop(boolean distinct, Expression arg) {
+    public KurtPop(boolean distinct, Expression arg) {
         this(distinct, false, arg);
     }
 
-    public KurtosisPop(boolean distinct, boolean alwaysNullable, Expression arg) {
+    public KurtPop(boolean distinct, boolean alwaysNullable, Expression arg) {
         super("kurtosis_pop", distinct, alwaysNullable, arg);
     }
 
     /** constructor for withChildren and reuse signature */
-    private KurtosisPop(NullableAggregateFunctionParams functionParams) {
+    private KurtPop(NullableAggregateFunctionParams functionParams) {
         super(functionParams);
     }
 
@@ -65,19 +65,19 @@ public class KurtosisPop extends NullableAggregateFunction
      * withDistinctAndChildren.
      */
     @Override
-    public KurtosisPop withDistinctAndChildren(boolean distinct, List<Expression> children) {
+    public KurtPop withDistinctAndChildren(boolean distinct, List<Expression> children) {
         Preconditions.checkArgument(children.size() == 1);
-        return new KurtosisPop(getFunctionParams(distinct, children));
+        return new KurtPop(getFunctionParams(distinct, children));
     }
 
     @Override
-    public KurtosisPop withAlwaysNullable(boolean alwaysNullable) {
-        return new KurtosisPop(getAlwaysNullableFunctionParams(alwaysNullable));
+    public KurtPop withAlwaysNullable(boolean alwaysNullable) {
+        return new KurtPop(getAlwaysNullableFunctionParams(alwaysNullable));
     }
 
     @Override
     public <R, C> R accept(ExpressionVisitor<R, C> visitor, C context) {
-        return visitor.visitKurtosisPop(this, context);
+        return visitor.visitKurtPop(this, context);
     }
 
     @Override
